@@ -18,10 +18,10 @@ import {
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Cases", href: "/cases", icon: FileText },
   { name: "Graph Analysis", href: "/graph", icon: Network },
   { name: "Risk Analysis", href: "/risk", icon: TrendingUp },
-  { name: "Reports", href: "/reports", icon: FileText },
-  { name: "Ledger", href: "/ledger", icon: Database },
+  { name: "Reports", href: "/reports", icon: Database },
 ]
 
 export function Sidebar() {
