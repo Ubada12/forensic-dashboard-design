@@ -17,112 +17,115 @@ export interface DemoTransaction {
 
 export const DEMO_WALLETS: DemoWallet[] = [
   {
-    address: '0xSCAMMER001',
+    address: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
     label: 'Root Scammer',
     type: 'scammer',
     riskScore: 95,
-    totalReceived: 0,
-    totalSent: 15.5
+    totalReceived: 45.8,
+    totalSent: 45.2
   },
   {
-    address: '0xMULE001',
-    label: 'Mule Layer 1',
-    type: 'mule',
-    riskScore: 45,
-    totalReceived: 5.2,
-    totalSent: 5.0
-  },
-  {
-    address: '0xMULE002',
-    label: 'Mule Layer 1',
-    type: 'mule',
-    riskScore: 42,
-    totalReceived: 5.3,
-    totalSent: 5.1
-  },
-  {
-    address: '0xMULE003',
-    label: 'Mule Layer 1',
-    type: 'mule',
-    riskScore: 48,
-    totalReceived: 5.0,
-    totalSent: 4.8
-  },
-  {
-    address: '0xMULE004',
-    label: 'Mule Layer 2',
-    type: 'mule',
-    riskScore: 35,
-    totalReceived: 3.2,
-    totalSent: 3.0
-  },
-  {
-    address: '0xMULE005',
-    label: 'Mule Layer 2',
-    type: 'mule',
-    riskScore: 38,
-    totalReceived: 4.1,
-    totalSent: 3.9
-  },
-  {
-    address: '0xMULE006',
-    label: 'Mule Layer 2',
-    type: 'mule',
-    riskScore: 32,
-    totalReceived: 2.8,
-    totalSent: 2.6
-  },
-  {
-    address: '0xMIXER001',
-    label: 'Tornado Cash Mixer',
-    type: 'mixer',
-    riskScore: 85,
-    totalReceived: 3.5,
-    totalSent: 3.4
-  },
-  {
-    address: '0xBINANCE001',
-    label: 'Binance Hot Wallet',
-    type: 'exchange',
-    riskScore: 10,
-    totalReceived: 5.2,
-    totalSent: 100000
-  },
-  {
-    address: '0xCOINBASE001',
-    label: 'Coinbase Hot Wallet',
-    type: 'exchange',
-    riskScore: 8,
-    totalReceived: 2.1,
-    totalSent: 85000
-  },
-  {
-    address: '0xVICTIM001',
+    address: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
     label: 'Victim Wallet',
     type: 'victim',
     riskScore: 5,
-    totalReceived: 10,
-    totalSent: 5.5
+    totalReceived: 50,
+    totalSent: 45.8
+  },
+  {
+    address: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
+    label: 'Mule Layer 1-A',
+    type: 'mule',
+    riskScore: 52,
+    totalReceived: 15.2,
+    totalSent: 14.8
+  },
+  {
+    address: '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6',
+    label: 'Mule Layer 1-B',
+    type: 'mule',
+    riskScore: 48,
+    totalReceived: 15.0,
+    totalSent: 14.6
+  },
+  {
+    address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
+    label: 'Mule Layer 1-C',
+    type: 'mule',
+    riskScore: 45,
+    totalReceived: 15.0,
+    totalSent: 14.5
+  },
+  {
+    address: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
+    label: 'Mule Layer 2-A',
+    type: 'mule',
+    riskScore: 38,
+    totalReceived: 7.5,
+    totalSent: 7.2
+  },
+  {
+    address: '0x53e0bca35ec356bd5dddfebb06019f53fb3e9f4d',
+    label: 'Mule Layer 2-B',
+    type: 'mule',
+    riskScore: 35,
+    totalReceived: 7.3,
+    totalSent: 7.0
+  },
+  {
+    address: '0x85955046df4668e1dd369d2de9f3aeb98dd2a369',
+    label: 'Mule Layer 2-C',
+    type: 'mule',
+    riskScore: 42,
+    totalReceived: 7.6,
+    totalSent: 7.3
+  },
+  {
+    address: '0xd6df932a45c0f255f85145f286ea0b292b21c90b',
+    label: 'Tornado Cash Mixer',
+    type: 'mixer',
+    riskScore: 88,
+    totalReceived: 7.5,
+    totalSent: 7.4
+  },
+  {
+    address: '0x28c6c06298d514db089934071355e5743bf21d60',
+    label: 'Binance Hot Wallet',
+    type: 'exchange',
+    riskScore: 10,
+    totalReceived: 14.5,
+    totalSent: 500000
+  },
+  {
+    address: '0xa9d1e08c7793af67e9d92fe308d5697fb81d3e43',
+    label: 'Coinbase Hot Wallet',
+    type: 'exchange',
+    riskScore: 8,
+    totalReceived: 7.0,
+    totalSent: 350000
   }
 ];
 
 export const DEMO_TRANSACTIONS: DemoTransaction[] = [
-  { hash: '0xTX001', from: '0xVICTIM001', to: '0xSCAMMER001', value: 5.5, timestamp: Date.now() - 86400000 * 7 },
-  { hash: '0xTX002', from: '0xSCAMMER001', to: '0xMULE001', value: 5.2, timestamp: Date.now() - 86400000 * 6 },
-  { hash: '0xTX003', from: '0xSCAMMER001', to: '0xMULE002', value: 5.3, timestamp: Date.now() - 86400000 * 6 },
-  { hash: '0xTX004', from: '0xSCAMMER001', to: '0xMULE003', value: 5.0, timestamp: Date.now() - 86400000 * 6 },
-  { hash: '0xTX005', from: '0xMULE001', to: '0xMULE004', value: 2.5, timestamp: Date.now() - 86400000 * 5 },
-  { hash: '0xTX006', from: '0xMULE001', to: '0xMIXER001', value: 2.5, timestamp: Date.now() - 86400000 * 5 },
-  { hash: '0xTX007', from: '0xMULE002', to: '0xMULE005', value: 2.6, timestamp: Date.now() - 86400000 * 5 },
-  { hash: '0xTX008', from: '0xMULE002', to: '0xMULE006', value: 2.5, timestamp: Date.now() - 86400000 * 5 },
-  { hash: '0xTX009', from: '0xMULE003', to: '0xBINANCE001', value: 4.8, timestamp: Date.now() - 86400000 * 4 },
-  { hash: '0xTX010', from: '0xMULE004', to: '0xBINANCE001', value: 2.3, timestamp: Date.now() - 86400000 * 3 },
-  { hash: '0xTX011', from: '0xMULE005', to: '0xCOINBASE001', value: 2.1, timestamp: Date.now() - 86400000 * 3 },
-  { hash: '0xTX012', from: '0xMULE006', to: '0xBINANCE001', value: 2.4, timestamp: Date.now() - 86400000 * 2 },
-  { hash: '0xTX013', from: '0xMIXER001', to: '0xCOINBASE001', value: 3.2, timestamp: Date.now() - 86400000 * 1 },
+  { hash: '0xabc123def456789012345678901234567890abcdef1234567890abcdef123456', from: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', to: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', value: 45.8, timestamp: Date.now() - 86400000 * 7 },
+  
+  { hash: '0xdef456789012345678901234567890abcdef1234567890abcdef123456789abc', from: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', to: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619', value: 15.2, timestamp: Date.now() - 86400000 * 6 },
+  { hash: '0x123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0', from: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', to: '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6', value: 15.0, timestamp: Date.now() - 86400000 * 6 },
+  { hash: '0x456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123', from: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', to: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270', value: 15.0, timestamp: Date.now() - 86400000 * 6 },
+  
+  { hash: '0x789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456', from: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619', to: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', value: 7.5, timestamp: Date.now() - 86400000 * 5 },
+  { hash: '0xabcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789', from: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619', to: '0xd6df932a45c0f255f85145f286ea0b292b21c90b', value: 7.3, timestamp: Date.now() - 86400000 * 5 },
+  { hash: '0xcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789ab', from: '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6', to: '0x53e0bca35ec356bd5dddfebb06019f53fb3e9f4d', value: 7.3, timestamp: Date.now() - 86400000 * 5 },
+  { hash: '0xef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd', from: '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6', to: '0x85955046df4668e1dd369d2de9f3aeb98dd2a369', value: 7.3, timestamp: Date.now() - 86400000 * 5 },
+  { hash: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', from: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270', to: '0x28c6c06298d514db089934071355e5743bf21d60', value: 14.5, timestamp: Date.now() - 86400000 * 4 },
+  
+  { hash: '0x23456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01', from: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', to: '0x28c6c06298d514db089934071355e5743bf21d60', value: 7.0, timestamp: Date.now() - 86400000 * 3 },
+  { hash: '0x3456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef012', from: '0x53e0bca35ec356bd5dddfebb06019f53fb3e9f4d', to: '0xa9d1e08c7793af67e9d92fe308d5697fb81d3e43', value: 7.0, timestamp: Date.now() - 86400000 * 3 },
+  { hash: '0x56789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01234', from: '0x85955046df4668e1dd369d2de9f3aeb98dd2a369', to: '0x28c6c06298d514db089934071355e5743bf21d60', value: 7.0, timestamp: Date.now() - 86400000 * 2 },
+  { hash: '0x6789abcdef0123456789abcdef0123456789abcdef0123456789abcdef012345', from: '0xd6df932a45c0f255f85145f286ea0b292b21c90b', to: '0xa9d1e08c7793af67e9d92fe308d5697fb81d3e43', value: 7.2, timestamp: Date.now() - 86400000 * 1 },
 ];
 
-export const DEMO_SEED_ADDRESS = '0xSCAMMER001';
+export const DEMO_SEED_ADDRESS = '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063';
 
 export function getDemoGraphData(seedAddress: string, depth: number = 2) {
   const nodes: Map<string, any> = new Map();
@@ -132,7 +135,7 @@ export function getDemoGraphData(seedAddress: string, depth: number = 2) {
   function addWalletNode(address: string) {
     if (nodes.has(address)) return;
     
-    const wallet = DEMO_WALLETS.find(w => w.address === address);
+    const wallet = DEMO_WALLETS.find(w => w.address.toLowerCase() === address.toLowerCase());
     if (wallet) {
       nodes.set(address, {
         id: address,
@@ -165,13 +168,14 @@ export function getDemoGraphData(seedAddress: string, depth: number = 2) {
     
     addWalletNode(address);
 
-    const outgoing = DEMO_TRANSACTIONS.filter(tx => tx.from === address);
-    const incoming = DEMO_TRANSACTIONS.filter(tx => tx.to === address);
+    const normalizedAddress = address.toLowerCase();
+    const outgoing = DEMO_TRANSACTIONS.filter(tx => tx.from.toLowerCase() === normalizedAddress);
+    const incoming = DEMO_TRANSACTIONS.filter(tx => tx.to.toLowerCase() === normalizedAddress);
 
     if (direction === 'both' || direction === 'out') {
       outgoing.forEach(tx => {
         addWalletNode(tx.to);
-        const linkId = `${tx.from}-${tx.to}`;
+        const linkId = `${tx.from.toLowerCase()}-${tx.to.toLowerCase()}`;
         if (!links.find(l => l.id === linkId)) {
           links.push({
             id: linkId,
@@ -188,7 +192,7 @@ export function getDemoGraphData(seedAddress: string, depth: number = 2) {
     if (direction === 'both' || direction === 'in') {
       incoming.forEach(tx => {
         addWalletNode(tx.from);
-        const linkId = `${tx.from}-${tx.to}`;
+        const linkId = `${tx.from.toLowerCase()}-${tx.to.toLowerCase()}`;
         if (!links.find(l => l.id === linkId)) {
           links.push({
             id: linkId,
@@ -221,8 +225,8 @@ export function getDemoGraphData(seedAddress: string, depth: number = 2) {
 }
 
 export const DEMO_ADDRESSES = {
-  scammer: '0xSCAMMER001',
-  victim: '0xVICTIM001',
-  mule: '0xMULE001',
-  exchange: '0xBINANCE001'
+  scammer: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
+  victim: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+  mule: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
+  exchange: '0x28c6c06298d514db089934071355e5743bf21d60'
 };

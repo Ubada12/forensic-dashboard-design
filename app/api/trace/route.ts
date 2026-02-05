@@ -34,15 +34,7 @@ interface TraceResult {
 }
 
 function isDemoAddress(address: string): boolean {
-  return address.startsWith('0x') && (
-    address.includes('SCAMMER') || 
-    address.includes('MULE') || 
-    address.includes('VICTIM') || 
-    address.includes('MIXER') ||
-    address.includes('BINANCE') ||
-    address.includes('COINBASE') ||
-    DEMO_WALLETS.some(w => w.address.toLowerCase() === address.toLowerCase())
-  );
+  return DEMO_WALLETS.some(w => w.address.toLowerCase() === address.toLowerCase());
 }
 
 export async function POST(request: NextRequest) {

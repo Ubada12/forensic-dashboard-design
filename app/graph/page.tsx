@@ -15,10 +15,10 @@ import { toast } from "sonner"
 import * as d3 from "d3"
 
 const DEMO_ADDRESSES = {
-  scammer: '0xSCAMMER001',
-  victim: '0xVICTIM001', 
-  mule: '0xMULE001',
-  exchange: '0xBINANCE001'
+  scammer: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
+  victim: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+  mule: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
+  exchange: '0x28c6c06298d514db089934071355e5743bf21d60'
 }
 
 interface GraphNode {
@@ -76,7 +76,8 @@ function GraphContent() {
   }, [searchParams])
 
   const isDemoAddress = (addr: string) => {
-    return addr.includes('SCAMMER') || addr.includes('MULE') || addr.includes('VICTIM') || addr.includes('MIXER') || addr.includes('BINANCE') || addr.includes('COINBASE')
+    const demoAddrs = Object.values(DEMO_ADDRESSES).map(a => a.toLowerCase())
+    return demoAddrs.includes(addr.toLowerCase())
   }
 
   const handleTrace = async (addr?: string) => {
