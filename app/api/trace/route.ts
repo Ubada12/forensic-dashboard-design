@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTransactions, isValidEthAddress, identifyExchange, weiToEth } from "@/lib/ethereum";
 import { calculateRiskScore } from "@/lib/risk-scoring";
+import { getDemoGraphData, DEMO_WALLETS } from "@/lib/demo-data";
 
 interface GraphNode {
   id: string;
@@ -13,6 +14,7 @@ interface GraphNode {
   totalOut: number;
   txCount: number;
   interactsWithExchange: boolean;
+  type?: string;
 }
 
 interface GraphEdge {
@@ -31,12 +33,63 @@ interface TraceResult {
   suspiciousAddresses: string[];
 }
 
+function isDemoAddress(address: string): boolean {
+  return address.startsWith('0x') && (
+    address.includes('SCAMMER') || 
+    address.includes('MULE') || 
+    address.includes('VICTIM') || 
+    address.includes('MIXER') ||
+    address.includes('BINANCE') ||
+    address.includes('COINBASE') ||
+    DEMO_WALLETS.some(w => w.address.toLowerCase() === address.toLowerCase())
+  );
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { address, depth = 2 } = body;
+    const { address, depth = 2, demoMode = false } = body;
 
-    if (!address || !isValidEthAddress(address)) {
+    if (!address) {
+      return NextResponse.json({ error: "Address is required" }, { status: 400 });
+    }
+
+    if (demoMode || isDemoAddress(address)) {
+      const demoData = getDemoGraphData(address, depth);
+      
+      const nodes: GraphNode[] = demoData.nodes.map(n => ({
+        id: n.id,
+        label: n.label || `${n.id.slice(0, 8)}...${n.id.slice(-4)}`,
+        riskScore: n.riskScore,
+        riskLevel: n.riskScore >= 70 ? 'high' : n.riskScore >= 40 ? 'medium' : 'low',
+        isExchange: n.isExchange,
+        exchangeName: n.exchangeName || null,
+        totalIn: n.totalReceived || 0,
+        totalOut: n.totalSent || 0,
+        txCount: 0,
+        interactsWithExchange: n.isExchange,
+        type: n.type
+      }));
+
+      const edges: GraphEdge[] = demoData.links.map(l => ({
+        source: l.source,
+        target: l.target,
+        value: l.value,
+        txCount: 1,
+        txHashes: [l.hash]
+      }));
+
+      return NextResponse.json({
+        nodes,
+        edges,
+        totalVolume: demoData.totalVolume,
+        exitPoints: demoData.exitPoints,
+        suspiciousAddresses: demoData.suspiciousAddresses,
+        isDemo: true
+      });
+    }
+
+    if (!isValidEthAddress(address)) {
       return NextResponse.json({ error: "Invalid Ethereum address" }, { status: 400 });
     }
 

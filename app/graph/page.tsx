@@ -10,9 +10,16 @@ import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { Search, ZoomIn, ZoomOut, RefreshCw, Filter, AlertTriangle, Building2, Wallet, Zap } from "lucide-react"
+import { Search, ZoomIn, ZoomOut, RefreshCw, Filter, AlertTriangle, Building2, Wallet, Zap, Play, Beaker } from "lucide-react"
 import { toast } from "sonner"
 import * as d3 from "d3"
+
+const DEMO_ADDRESSES = {
+  scammer: '0xSCAMMER001',
+  victim: '0xVICTIM001', 
+  mule: '0xMULE001',
+  exchange: '0xBINANCE001'
+}
 
 interface GraphNode {
   id: string
@@ -58,6 +65,7 @@ function GraphContent() {
   const [traceResult, setTraceResult] = useState<TraceResult | null>(null)
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [showHighRiskOnly, setShowHighRiskOnly] = useState(false)
+  const [demoMode, setDemoMode] = useState(false)
 
   useEffect(() => {
     const addr = searchParams.get("address")
@@ -67,6 +75,10 @@ function GraphContent() {
     }
   }, [searchParams])
 
+  const isDemoAddress = (addr: string) => {
+    return addr.includes('SCAMMER') || addr.includes('MULE') || addr.includes('VICTIM') || addr.includes('MIXER') || addr.includes('BINANCE') || addr.includes('COINBASE')
+  }
+
   const handleTrace = async (addr?: string) => {
     const targetAddress = addr || address
     if (!targetAddress.trim()) {
@@ -74,7 +86,9 @@ function GraphContent() {
       return
     }
 
-    if (!/^0x[a-fA-F0-9]{40}$/.test(targetAddress)) {
+    const isDemo = demoMode || isDemoAddress(targetAddress)
+    
+    if (!isDemo && !/^0x[a-fA-F0-9]{40}$/.test(targetAddress)) {
       toast.error("Invalid Ethereum address format")
       return
     }
@@ -86,16 +100,17 @@ function GraphContent() {
       const response = await fetch("/api/trace", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address: targetAddress, depth: depth[0] }),
+        body: JSON.stringify({ address: targetAddress, depth: depth[0], demoMode: isDemo }),
       })
 
       if (response.ok) {
         const data = await response.json()
         setTraceResult(data)
         if (data.nodes.length > 0) {
-          toast.success(`Traced ${data.nodes.length} wallets and ${data.edges.length} connections`)
+          const modeText = data.isDemo ? " (Demo Mode)" : ""
+          toast.success(`Traced ${data.nodes.length} wallets and ${data.edges.length} connections${modeText}`)
         } else {
-          toast.info("No transactions found for this address. Make sure you have configured an Etherscan API key.")
+          toast.info("No transactions found for this address. Try using Demo Mode for a demonstration.")
         }
       } else {
         toast.error("Failed to trace address")
@@ -315,6 +330,72 @@ function GraphContent() {
                     <Search className="h-4 w-4 mr-2" />
                   )}
                   {isLoading ? "Tracing..." : "Trace Wallet"}
+                </Button>
+              </div>
+            </div>
+
+            <div className="pt-5 border-t border-slate-800/50">
+              <div className="flex items-center gap-2 mb-3">
+                <Beaker className="h-4 w-4 text-violet-400" />
+                <h4 className="text-xs font-semibold text-slate-300">Demo Mode</h4>
+              </div>
+              <p className="text-xs text-slate-500 mb-3">Use sample data for demonstration</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setAddress(DEMO_ADDRESSES.scammer)
+                    setDemoMode(true)
+                    handleTrace(DEMO_ADDRESSES.scammer)
+                  }}
+                  disabled={isLoading}
+                  className="text-xs h-9 border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                >
+                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  Scammer
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setAddress(DEMO_ADDRESSES.victim)
+                    setDemoMode(true)
+                    handleTrace(DEMO_ADDRESSES.victim)
+                  }}
+                  disabled={isLoading}
+                  className="text-xs h-9 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300"
+                >
+                  <Wallet className="h-3 w-3 mr-1" />
+                  Victim
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setAddress(DEMO_ADDRESSES.mule)
+                    setDemoMode(true)
+                    handleTrace(DEMO_ADDRESSES.mule)
+                  }}
+                  disabled={isLoading}
+                  className="text-xs h-9 border-amber-500/30 text-amber-400 hover:bg-amber-500/10 hover:text-amber-300"
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" />
+                  Mule
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setAddress(DEMO_ADDRESSES.exchange)
+                    setDemoMode(true)
+                    handleTrace(DEMO_ADDRESSES.exchange)
+                  }}
+                  disabled={isLoading}
+                  className="text-xs h-9 border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300"
+                >
+                  <Building2 className="h-3 w-3 mr-1" />
+                  Exchange
                 </Button>
               </div>
             </div>
