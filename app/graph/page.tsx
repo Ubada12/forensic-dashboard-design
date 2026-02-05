@@ -249,61 +249,66 @@ function GraphContent() {
   const formatEth = (value: number) => value.toFixed(4)
 
   return (
-    <div className="flex h-screen bg-background blockchain-bg">
+    <div className="flex h-screen bg-background">
       <Sidebar />
 
-      <main className="flex-1 overflow-hidden flex flex-col">
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm shrink-0">
-          <div className="flex items-center justify-between px-6 py-4">
+      <main className="flex-1 overflow-hidden flex flex-col page-gradient">
+        <header className="sticky top-0 z-10 border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-xl shrink-0">
+          <div className="flex items-center justify-between px-8 py-5">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Transaction Graph Analysis</h1>
-              <p className="text-muted-foreground">Visualize money flow and trace suspicious transactions</p>
+              <h1 className="text-2xl font-bold text-white">Transaction Graph Analysis</h1>
+              <p className="text-slate-400 text-sm mt-0.5">Visualize money flow and trace suspicious transactions</p>
             </div>
-            <Badge variant="outline" className="text-primary border-primary">
-              <Zap className="h-3 w-3 mr-1" />
-              Live Analysis
-            </Badge>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+              <Zap className="h-3 w-3 text-primary animate-pulse" />
+              <span className="text-xs text-primary font-medium">Live Analysis</span>
+            </div>
           </div>
         </header>
 
         <div className="flex-1 flex overflow-hidden">
-          <div className="w-72 border-r border-border bg-card/30 backdrop-blur-sm p-4 space-y-4 overflow-auto shrink-0">
+          <div className="w-72 border-r border-slate-800/50 bg-slate-950/50 backdrop-blur-sm p-5 space-y-5 overflow-auto shrink-0">
             <div>
-              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-semibold mb-4 flex items-center gap-2 text-white">
                 <Filter className="h-4 w-4 text-primary" />
                 Analysis Controls
               </h3>
               
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-xs">Wallet Address</Label>
+                  <Label className="text-xs text-slate-400">Wallet Address</Label>
                   <Input
                     placeholder="0x..."
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="font-mono text-xs"
+                    className="font-mono text-xs h-10 bg-slate-900/50 border-slate-700/50 rounded-xl focus:border-primary/50"
                     onKeyDown={(e) => e.key === "Enter" && handleTrace()}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs">Trace Depth: {depth[0]}</Label>
+                  <Label className="text-xs text-slate-400">Trace Depth: {depth[0]}</Label>
                   <Slider
                     value={depth}
                     onValueChange={setDepth}
                     min={1}
                     max={3}
                     step={1}
+                    className="py-2"
                   />
-                  <p className="text-xs text-muted-foreground">Higher depth = more wallets traced</p>
+                  <p className="text-xs text-slate-500">Higher depth = more wallets traced</p>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">High Risk Only</Label>
+                <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-slate-900/30 border border-slate-800/50">
+                  <Label className="text-xs text-slate-400">High Risk Only</Label>
                   <Switch checked={showHighRiskOnly} onCheckedChange={setShowHighRiskOnly} />
                 </div>
 
-                <Button onClick={() => handleTrace()} disabled={isLoading} className="w-full">
+                <Button 
+                  onClick={() => handleTrace()} 
+                  disabled={isLoading} 
+                  className="w-full h-11 rounded-xl bg-gradient-to-r from-primary to-cyan-500 text-slate-900 font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all"
+                >
                   {isLoading ? (
                     <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                   ) : (
@@ -314,75 +319,79 @@ function GraphContent() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-border">
-              <h4 className="text-xs font-semibold mb-2">Risk Legend</h4>
-              <div className="space-y-2 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500" style={{boxShadow: "0 0 6px #ef4444"}}></div>
-                  <span>High/Critical Risk</span>
+            <div className="pt-5 border-t border-slate-800/50">
+              <h4 className="text-xs font-semibold mb-3 text-slate-300">Risk Legend</h4>
+              <div className="space-y-2.5 text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500" style={{boxShadow: "0 0 8px rgba(239, 68, 68, 0.6)"}}></div>
+                  <span className="text-slate-400">High/Critical Risk</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" style={{boxShadow: "0 0 6px #f59e0b"}}></div>
-                  <span>Medium Risk</span>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-3 h-3 rounded-full bg-amber-500" style={{boxShadow: "0 0 8px rgba(245, 158, 11, 0.6)"}}></div>
+                  <span className="text-slate-400">Medium Risk</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500" style={{boxShadow: "0 0 6px #22c55e"}}></div>
-                  <span>Low Risk</span>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-3 h-3 rounded-full bg-emerald-500" style={{boxShadow: "0 0 8px rgba(34, 197, 94, 0.6)"}}></div>
+                  <span className="text-slate-400">Low Risk</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500" style={{boxShadow: "0 0 6px #3b82f6"}}></div>
-                  <span>Exchange (Exit Point)</span>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-3 h-3 rounded-full bg-blue-500" style={{boxShadow: "0 0 8px rgba(59, 130, 246, 0.6)"}}></div>
+                  <span className="text-slate-400">Exchange (Exit Point)</span>
                 </div>
               </div>
             </div>
 
             {traceResult && (
-              <Card className="border-border bg-card/50">
-                <CardHeader className="pb-2 pt-3 px-3">
-                  <CardTitle className="text-xs">Trace Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-1 px-3 pb-3 text-xs">
+              <div className="rounded-xl border border-slate-800/50 bg-slate-900/30 overflow-hidden">
+                <div className="px-4 py-3 border-b border-slate-800/50">
+                  <h4 className="text-xs font-semibold text-white">Trace Summary</h4>
+                </div>
+                <div className="p-4 space-y-2 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Wallets:</span>
-                    <span className="font-mono">{traceResult.nodes.length}</span>
+                    <span className="text-slate-500">Wallets:</span>
+                    <span className="font-mono text-white">{traceResult.nodes.length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Connections:</span>
-                    <span className="font-mono">{traceResult.edges.length}</span>
+                    <span className="text-slate-500">Connections:</span>
+                    <span className="font-mono text-white">{traceResult.edges.length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Exit Points:</span>
-                    <span className="font-mono">{traceResult.exitPoints.length}</span>
+                    <span className="text-slate-500">Exit Points:</span>
+                    <span className="font-mono text-blue-400">{traceResult.exitPoints.length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Suspicious:</span>
-                    <span className="font-mono text-red-500">{traceResult.suspiciousAddresses.length}</span>
+                    <span className="text-slate-500">Suspicious:</span>
+                    <span className="font-mono text-red-400">{traceResult.suspiciousAddresses.length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Volume:</span>
-                    <span className="font-mono">{formatEth(traceResult.totalVolume)} ETH</span>
+                    <span className="text-slate-500">Volume:</span>
+                    <span className="font-mono text-white">{formatEth(traceResult.totalVolume)} ETH</span>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
           </div>
 
-          <div className="flex-1 flex flex-col p-4 gap-4 overflow-hidden">
-            <div ref={containerRef} className="flex-1 relative bg-card/30 rounded-lg border border-border overflow-hidden" style={{background: "linear-gradient(45deg, #0a0a0f 0%, #1a1a2e 100%)"}}>
+          <div className="flex-1 flex flex-col p-5 gap-4 overflow-hidden">
+            <div ref={containerRef} className="flex-1 relative rounded-2xl border border-slate-800/50 overflow-hidden" style={{background: "radial-gradient(ellipse at center, #0f172a 0%, #020617 100%)"}}>
               {!traceResult ? (
-                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>Enter a wallet address and click Trace to visualize the transaction graph</p>
-                    <p className="text-xs mt-2 text-muted-foreground">Requires ETHERSCAN_API_KEY in secrets</p>
+                    <div className="w-16 h-16 rounded-2xl bg-slate-800/50 flex items-center justify-center mx-auto mb-4">
+                      <Search className="h-8 w-8 text-slate-600" />
+                    </div>
+                    <p className="text-slate-400">Enter a wallet address and click Trace to visualize the transaction graph</p>
+                    <p className="text-xs mt-2 text-slate-600">Requires ETHERSCAN_API_KEY in secrets</p>
                   </div>
                 </div>
               ) : traceResult.nodes.length === 0 ? (
-                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>No transactions found for this address</p>
-                    <p className="text-xs mt-2">The address may be new or have no activity</p>
+                    <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
+                      <AlertTriangle className="h-8 w-8 text-amber-500/50" />
+                    </div>
+                    <p className="text-slate-400">No transactions found for this address</p>
+                    <p className="text-xs mt-2 text-slate-600">The address may be new or have no activity</p>
                   </div>
                 </div>
               ) : (
@@ -391,65 +400,57 @@ function GraphContent() {
             </div>
 
             {traceResult && traceResult.nodes.length > 0 && (
-              <div className="flex gap-4 shrink-0">
-                <Card className="flex-1 border-border bg-card/80">
-                  <CardContent className="p-3 flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                      <Wallet className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Wallets</p>
-                      <p className="text-lg font-bold">{traceResult.nodes.length}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="flex-1 border-border bg-card/80">
-                  <CardContent className="p-3 flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                      <Building2 className="h-4 w-4 text-blue-500" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Exit Points</p>
-                      <p className="text-lg font-bold">{traceResult.exitPoints.length}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="flex-1 border-border bg-card/80">
-                  <CardContent className="p-3 flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-red-500/20 flex items-center justify-center">
-                      <AlertTriangle className="h-4 w-4 text-red-500" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Suspicious</p>
-                      <p className="text-lg font-bold">{traceResult.suspiciousAddresses.length}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="flex-1 border-border bg-card/80">
-                  <CardContent className="p-3 flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center">
-                      <RefreshCw className="h-4 w-4 text-accent" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Volume</p>
-                      <p className="text-lg font-bold">{formatEth(traceResult.totalVolume)} ETH</p>
-                    </div>
-                  </CardContent>
-                </Card>
+              <div className="grid grid-cols-4 gap-3 shrink-0">
+                <div className="rounded-xl border border-slate-800/50 bg-slate-900/50 p-4 flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                    <Wallet className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Wallets</p>
+                    <p className="text-xl font-bold text-white">{traceResult.nodes.length}</p>
+                  </div>
+                </div>
+                <div className="rounded-xl border border-slate-800/50 bg-slate-900/50 p-4 flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                    <Building2 className="h-5 w-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Exit Points</p>
+                    <p className="text-xl font-bold text-blue-400">{traceResult.exitPoints.length}</p>
+                  </div>
+                </div>
+                <div className="rounded-xl border border-slate-800/50 bg-slate-900/50 p-4 flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-red-500/10 flex items-center justify-center border border-red-500/20">
+                    <AlertTriangle className="h-5 w-5 text-red-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Suspicious</p>
+                    <p className="text-xl font-bold text-red-400">{traceResult.suspiciousAddresses.length}</p>
+                  </div>
+                </div>
+                <div className="rounded-xl border border-slate-800/50 bg-slate-900/50 p-4 flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
+                    <RefreshCw className="h-5 w-5 text-violet-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Volume</p>
+                    <p className="text-xl font-bold text-white">{formatEth(traceResult.totalVolume)} ETH</p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
 
           {selectedNode && (
-            <div className="w-72 border-l border-border bg-card/30 backdrop-blur-sm p-4 overflow-auto shrink-0">
-              <h3 className="font-semibold mb-4">Wallet Details</h3>
+            <div className="w-72 border-l border-slate-800/50 bg-slate-950/50 backdrop-blur-sm p-5 overflow-auto shrink-0">
+              <h3 className="font-semibold mb-4 text-white">Wallet Details</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs text-muted-foreground">Address</label>
-                  <p className="font-mono text-xs break-all">{selectedNode.id}</p>
+                  <label className="text-xs text-slate-500">Address</label>
+                  <p className="font-mono text-xs break-all text-white mt-1">{selectedNode.id}</p>
                 </div>
                 {selectedNode.isExchange && (
-                  <Badge className="bg-blue-500/20 text-blue-500">
+                  <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
                     <Building2 className="h-3 w-3 mr-1" />
                     {selectedNode.exchangeName || "Exchange"}
                   </Badge>

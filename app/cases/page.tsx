@@ -3,14 +3,14 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/sidebar"
+import { Loading } from "@/components/loading"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Plus, FileText, Search, Trash2, ExternalLink, Calendar } from "lucide-react"
+import { Plus, FileText, Search, Trash2, ExternalLink, Calendar, FolderOpen } from "lucide-react"
 import { toast } from "sonner"
 
 interface Case {
@@ -115,80 +115,102 @@ export default function CasesPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "open":
-        return <Badge className="bg-green-500/20 text-green-500 border-green-500/50">Open</Badge>
+        return <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">Open</Badge>
       case "closed":
-        return <Badge variant="secondary">Closed</Badge>
+        return <Badge className="bg-slate-500/20 text-slate-400 border-slate-500/30">Closed</Badge>
       case "pending":
-        return <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/50">Pending</Badge>
+        return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">Pending</Badge>
       default:
         return <Badge variant="outline">{status}</Badge>
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex h-screen bg-background">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <Loading size="lg" text="Loading cases..." />
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex h-screen bg-background blockchain-bg">
+    <div className="flex h-screen bg-background">
       <Sidebar />
 
-      <main className="flex-1 overflow-auto">
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm">
-          <div className="flex items-center justify-between px-6 py-4">
+      <main className="flex-1 overflow-auto page-gradient">
+        <header className="sticky top-0 z-10 border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-xl">
+          <div className="flex items-center justify-between px-8 py-5">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Investigation Cases</h1>
-              <p className="text-muted-foreground">Manage forensic investigation cases</p>
+              <h1 className="text-2xl font-bold text-white">Investigation Cases</h1>
+              <p className="text-slate-400 text-sm mt-0.5">Manage forensic investigation cases</p>
             </div>
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="rounded-xl bg-gradient-to-r from-primary to-cyan-500 text-slate-900 font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all">
                   <Plus className="h-4 w-4 mr-2" />
                   New Case
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
+              <DialogContent className="sm:max-w-[500px] bg-slate-900 border-slate-700/50">
                 <DialogHeader>
-                  <DialogTitle>Create New Investigation Case</DialogTitle>
-                  <DialogDescription>
+                  <DialogTitle className="text-white">Create New Investigation Case</DialogTitle>
+                  <DialogDescription className="text-slate-400">
                     Enter the details for the new forensic investigation case.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="title">Case Title</Label>
+                    <Label htmlFor="title" className="text-slate-300">Case Title</Label>
                     <Input
                       id="title"
                       placeholder="e.g., P2P Scam Investigation - Telegram"
                       value={newCase.title}
                       onChange={(e) => setNewCase({ ...newCase, title: e.target.value })}
+                      className="bg-slate-800/50 border-slate-700/50 rounded-xl focus:border-primary/50"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="seedAddress">Seed Wallet Address</Label>
+                    <Label htmlFor="seedAddress" className="text-slate-300">Seed Wallet Address</Label>
                     <Input
                       id="seedAddress"
                       placeholder="0x..."
-                      className="font-mono"
+                      className="font-mono bg-slate-800/50 border-slate-700/50 rounded-xl focus:border-primary/50"
                       value={newCase.seedAddress}
                       onChange={(e) => setNewCase({ ...newCase, seedAddress: e.target.value })}
                     />
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-slate-500">
                       The initial suspicious wallet address to begin tracing from
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="description">Description (Optional)</Label>
+                    <Label htmlFor="description" className="text-slate-300">Description (Optional)</Label>
                     <Textarea
                       id="description"
                       placeholder="Brief description of the case..."
                       value={newCase.description}
                       onChange={(e) => setNewCase({ ...newCase, description: e.target.value })}
+                      className="bg-slate-800/50 border-slate-700/50 rounded-xl focus:border-primary/50 min-h-[80px]"
                     />
                   </div>
                 </div>
                 <div className="flex justify-end gap-3">
-                  <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                  <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl border-slate-700 hover:bg-slate-800">
                     Cancel
                   </Button>
-                  <Button onClick={handleCreateCase} disabled={isCreating}>
-                    {isCreating ? "Creating..." : "Create Case"}
+                  <Button 
+                    onClick={handleCreateCase} 
+                    disabled={isCreating}
+                    className="rounded-xl bg-gradient-to-r from-primary to-cyan-500 text-slate-900 font-semibold"
+                  >
+                    {isCreating ? (
+                      <>
+                        <Loading size="sm" className="mr-2" />
+                        Creating...
+                      </>
+                    ) : "Create Case"}
                   </Button>
                 </div>
               </DialogContent>
@@ -196,91 +218,94 @@ export default function CasesPage() {
           </div>
         </header>
 
-        <div className="p-6 space-y-6">
+        <div className="p-8 space-y-6">
           <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="relative flex-1 input-glow rounded-xl transition-all">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500" />
               <Input
                 placeholder="Search cases by title, case number, or wallet address..."
-                className="pl-10"
+                className="pl-11 h-12 bg-slate-900/50 border-slate-700/50 rounded-xl focus:border-primary/50 transition-colors"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
 
-          {isLoading ? (
-            <div className="text-center py-12 text-muted-foreground">Loading cases...</div>
-          ) : filteredCases.length === 0 ? (
-            <Card className="border-border bg-card/80 backdrop-blur-sm">
-              <CardContent className="py-12 text-center">
-                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No cases found</h3>
-                <p className="text-muted-foreground mb-4">
-                  {searchQuery ? "No cases match your search criteria" : "Create your first investigation case to get started"}
-                </p>
-                {!searchQuery && (
-                  <Button onClick={() => setDialogOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Case
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+          {filteredCases.length === 0 ? (
+            <div className="glass-card p-12 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-slate-800/50 flex items-center justify-center mx-auto mb-4">
+                <FolderOpen className="h-8 w-8 text-slate-600" />
+              </div>
+              <h3 className="text-lg font-medium text-white mb-2">No cases found</h3>
+              <p className="text-slate-400 mb-6">
+                {searchQuery ? "No cases match your search criteria" : "Create your first investigation case to get started"}
+              </p>
+              {!searchQuery && (
+                <Button 
+                  onClick={() => setDialogOpen(true)}
+                  className="rounded-xl bg-gradient-to-r from-primary to-cyan-500 text-slate-900 font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Case
+                </Button>
+              )}
+            </div>
           ) : (
             <div className="grid gap-4">
-              {filteredCases.map((caseItem) => (
-                <Card
+              {filteredCases.map((caseItem, index) => (
+                <div
                   key={caseItem.id}
-                  className="border-border bg-card/80 backdrop-blur-sm hover:bg-card/90 cursor-pointer transition-colors"
+                  className="glass-card-hover p-6 cursor-pointer group"
                   onClick={() => router.push(`/graph?address=${caseItem.seedAddress}&caseId=${caseItem.id}`)}
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Badge variant="outline" className="font-mono text-xs">
-                            {caseItem.caseNumber}
-                          </Badge>
-                          {getStatusBadge(caseItem.status)}
-                        </div>
-                        <h3 className="text-lg font-semibold mb-1">{caseItem.title}</h3>
-                        {caseItem.description && (
-                          <p className="text-sm text-muted-foreground mb-3">{caseItem.description}</p>
-                        )}
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span className="font-mono">
-                            {caseItem.seedAddress.slice(0, 10)}...{caseItem.seedAddress.slice(-8)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {new Date(caseItem.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Badge className="font-mono text-xs bg-slate-800 text-slate-300 border-slate-700">
+                          {caseItem.caseNumber}
+                        </Badge>
+                        {getStatusBadge(caseItem.status)}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            router.push(`/graph?address=${caseItem.seedAddress}`)
-                          }}
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                          onClick={(e) => handleDeleteCase(caseItem.id, e)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                      <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-primary transition-colors">
+                        {caseItem.title}
+                      </h3>
+                      {caseItem.description && (
+                        <p className="text-sm text-slate-400 mb-3 line-clamp-2">{caseItem.description}</p>
+                      )}
+                      <div className="flex items-center gap-4 text-sm text-slate-500">
+                        <span className="font-mono bg-slate-800/50 px-2 py-1 rounded-md">
+                          {caseItem.seedAddress.slice(0, 10)}...{caseItem.seedAddress.slice(-8)}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {new Date(caseItem.createdAt).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex items-center gap-2 ml-4">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          router.push(`/graph?address=${caseItem.seedAddress}`)
+                        }}
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        onClick={(e) => handleDeleteCase(caseItem.id, e)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           )}
