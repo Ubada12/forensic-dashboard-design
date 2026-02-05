@@ -12,6 +12,7 @@ interface GraphNode {
   totalIn: number;
   totalOut: number;
   txCount: number;
+  interactsWithExchange: boolean;
 }
 
 interface GraphEdge {
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
     const traced = new Set<string>();
     const nodes: Map<string, GraphNode> = new Map();
     const edges: Map<string, GraphEdge> = new Map();
+    const exchangeInteractions: Set<string> = new Set();
     const queue: { addr: string; level: number }[] = [{ addr: address.toLowerCase(), level: 0 }];
 
     while (queue.length > 0 && traced.size < 50) {
@@ -59,6 +61,7 @@ export async function POST(request: NextRequest) {
         txCount: transactions.length,
         connections: new Set<string>(),
         timestamps: [] as number[],
+        interactsWithExchange: false,
       };
 
       for (const tx of transactions) {
@@ -68,9 +71,16 @@ export async function POST(request: NextRequest) {
 
         if (!to) continue;
 
+        addressStats.timestamps.push(parseInt(tx.timeStamp) * 1000);
+
         if (from === current.addr) {
           addressStats.totalOut += value;
           addressStats.connections.add(to);
+          
+          if (identifyExchange(to)) {
+            addressStats.interactsWithExchange = true;
+            exchangeInteractions.add(current.addr);
+          }
           
           const edgeKey = `${from}-${to}`;
           const existing = edges.get(edgeKey);
@@ -94,9 +104,32 @@ export async function POST(request: NextRequest) {
         } else if (to === current.addr) {
           addressStats.totalIn += value;
           addressStats.connections.add(from);
-        }
+          
+          if (identifyExchange(from)) {
+            addressStats.interactsWithExchange = true;
+            exchangeInteractions.add(current.addr);
+          }
+          
+          const edgeKey = `${from}-${to}`;
+          const existing = edges.get(edgeKey);
+          if (existing) {
+            existing.value += value;
+            existing.txCount++;
+            existing.txHashes.push(tx.hash);
+          } else {
+            edges.set(edgeKey, {
+              source: from,
+              target: to,
+              value,
+              txCount: 1,
+              txHashes: [tx.hash],
+            });
+          }
 
-        addressStats.timestamps.push(parseInt(tx.timeStamp) * 1000);
+          if (!traced.has(from) && current.level < depth) {
+            queue.push({ addr: from, level: current.level + 1 });
+          }
+        }
       }
 
       let avgTimeBetweenTx = 0;
@@ -110,13 +143,15 @@ export async function POST(request: NextRequest) {
       }
 
       const exchangeName = identifyExchange(current.addr);
+      const isExitPoint = exchangeName !== null || addressStats.interactsWithExchange;
+      
       const riskAnalysis = calculateRiskScore(
         current.addr,
         addressStats.txCount,
         addressStats.connections.size,
         avgTimeBetweenTx,
         addressStats.totalIn + addressStats.totalOut,
-        exchangeName !== null,
+        isExitPoint,
         false
       );
 
@@ -130,16 +165,19 @@ export async function POST(request: NextRequest) {
         totalIn: addressStats.totalIn,
         totalOut: addressStats.totalOut,
         txCount: addressStats.txCount,
+        interactsWithExchange: addressStats.interactsWithExchange,
       });
     }
+
+    const exitPoints = Array.from(nodes.values())
+      .filter((n) => n.isExchange || n.interactsWithExchange)
+      .map((n) => n.id);
 
     const result: TraceResult = {
       nodes: Array.from(nodes.values()),
       edges: Array.from(edges.values()),
       totalVolume: Array.from(nodes.values()).reduce((sum, n) => sum + n.totalIn, 0),
-      exitPoints: Array.from(nodes.values())
-        .filter((n) => n.isExchange)
-        .map((n) => n.id),
+      exitPoints,
       suspiciousAddresses: Array.from(nodes.values())
         .filter((n) => n.riskScore >= 50)
         .map((n) => n.id),
