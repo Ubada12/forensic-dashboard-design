@@ -157,56 +157,56 @@ export default function CasesPage() {
                   <span className="sm:hidden">New</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px] bg-slate-900 border-slate-700/50 mx-4 max-h-[90vh] overflow-auto">
+              <DialogContent className="sm:max-w-[500px] max-w-[calc(100%-2rem)] bg-slate-900 border-slate-700/50 max-h-[85vh] overflow-auto p-4 sm:p-6 rounded-2xl">
                 <DialogHeader>
-                  <DialogTitle className="text-white">Create New Investigation Case</DialogTitle>
-                  <DialogDescription className="text-slate-400">
+                  <DialogTitle className="text-white text-base sm:text-lg">Create New Investigation Case</DialogTitle>
+                  <DialogDescription className="text-slate-400 text-xs sm:text-sm">
                     Enter the details for the new forensic investigation case.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title" className="text-slate-300">Case Title</Label>
+                <div className="space-y-3 sm:space-y-4 py-2 sm:py-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="title" className="text-slate-300 text-xs sm:text-sm">Case Title</Label>
                     <Input
                       id="title"
                       placeholder="e.g., P2P Scam Investigation"
                       value={newCase.title}
                       onChange={(e) => setNewCase({ ...newCase, title: e.target.value })}
-                      className="bg-slate-800/50 border-slate-700/50 rounded-xl focus:border-primary/50"
+                      className="bg-slate-800/50 border-slate-700/50 rounded-xl focus:border-primary/50 h-10 text-sm"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="seedAddress" className="text-slate-300">Seed Wallet Address</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="seedAddress" className="text-slate-300 text-xs sm:text-sm">Seed Wallet Address</Label>
                     <Input
                       id="seedAddress"
                       placeholder="0x..."
-                      className="font-mono text-xs sm:text-sm bg-slate-800/50 border-slate-700/50 rounded-xl focus:border-primary/50"
+                      className="font-mono text-xs bg-slate-800/50 border-slate-700/50 rounded-xl focus:border-primary/50 h-10"
                       value={newCase.seedAddress}
                       onChange={(e) => setNewCase({ ...newCase, seedAddress: e.target.value })}
                     />
-                    <p className="text-xs text-slate-500">
+                    <p className="text-[10px] sm:text-xs text-slate-500">
                       The initial suspicious wallet address to begin tracing from
                     </p>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description" className="text-slate-300">Description (Optional)</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="description" className="text-slate-300 text-xs sm:text-sm">Description (Optional)</Label>
                     <Textarea
                       id="description"
                       placeholder="Brief description of the case..."
                       value={newCase.description}
                       onChange={(e) => setNewCase({ ...newCase, description: e.target.value })}
-                      className="bg-slate-800/50 border-slate-700/50 rounded-xl focus:border-primary/50 min-h-[80px]"
+                      className="bg-slate-800/50 border-slate-700/50 rounded-xl focus:border-primary/50 min-h-[70px] sm:min-h-[80px] text-sm"
                     />
                   </div>
                 </div>
-                <div className="flex justify-end gap-3">
-                  <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl border-slate-700 hover:bg-slate-800">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-2">
+                  <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl border-slate-700 hover:bg-slate-800 h-10 text-sm">
                     Cancel
                   </Button>
                   <Button 
                     onClick={handleCreateCase} 
                     disabled={isCreating}
-                    className="rounded-xl bg-gradient-to-r from-primary to-cyan-500 text-slate-900 font-semibold"
+                    className="rounded-xl bg-gradient-to-r from-primary to-cyan-500 text-slate-900 font-semibold h-10 text-sm"
                   >
                     {isCreating ? (
                       <>
