@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -15,6 +15,8 @@ import {
   TrendingUp,
   FileBarChart,
   Hexagon,
+  Menu,
+  X,
 } from "lucide-react"
 
 const navigation = [
@@ -49,6 +51,74 @@ function Logo({ collapsed }: { collapsed: boolean }) {
   )
 }
 
+export function MobileHeader() {
+  const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
+
+  return (
+    <>
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/50">
+        <Logo collapsed={false} />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setOpen(!open)}
+          className="h-10 w-10 text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl"
+        >
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </Button>
+      </div>
+
+      {open && (
+        <div className="md:hidden fixed inset-0 z-40" onClick={() => setOpen(false)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div
+            className="absolute top-[60px] left-0 right-0 bg-slate-950/98 backdrop-blur-xl border-b border-slate-800/50 p-4 space-y-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {navigation.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link key={item.name} href={item.href} onClick={() => setOpen(false)}>
+                  <div
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
+                      isActive
+                        ? "bg-gradient-to-r from-primary/20 to-cyan-500/10 text-primary border border-primary/20"
+                        : "text-slate-400 hover:text-white hover:bg-slate-800/50",
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span className={cn(
+                      "text-sm font-medium",
+                      isActive ? "text-primary" : "text-slate-300"
+                    )}>
+                      {item.name}
+                    </span>
+                    {isActive && (
+                      <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                    )}
+                  </div>
+                </Link>
+              )
+            })}
+            <div className="pt-3 mt-3 border-t border-slate-800/50">
+              <div className="flex items-center gap-2 text-xs text-slate-500 px-4">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Law Enforcement v1.0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
@@ -56,7 +126,7 @@ export function Sidebar() {
   return (
     <div
       className={cn(
-        "flex flex-col h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-slate-800/50 transition-all duration-300 ease-out",
+        "hidden md:flex flex-col h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-slate-800/50 transition-all duration-300 ease-out",
         collapsed ? "w-[72px]" : "w-64",
       )}
     >

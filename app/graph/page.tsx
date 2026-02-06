@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { Sidebar } from "@/components/sidebar"
+import { Sidebar, MobileHeader } from "@/components/sidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { Search, ZoomIn, ZoomOut, RefreshCw, Filter, AlertTriangle, Building2, Wallet, Zap, Play, Beaker } from "lucide-react"
+import { Search, ZoomIn, ZoomOut, RefreshCw, Filter, AlertTriangle, Building2, Wallet, Zap, Play, Beaker, ChevronDown, ChevronUp, X } from "lucide-react"
 import { toast } from "sonner"
 import * as d3 from "d3"
 
@@ -66,6 +66,8 @@ function GraphContent() {
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [showHighRiskOnly, setShowHighRiskOnly] = useState(false)
   const [demoMode, setDemoMode] = useState(false)
+  const [showMobileControls, setShowMobileControls] = useState(false)
+  const [showMobileDetails, setShowMobileDetails] = useState(false)
 
   useEffect(() => {
     const addr = searchParams.get("address")
@@ -74,6 +76,12 @@ function GraphContent() {
       handleTrace(addr)
     }
   }, [searchParams])
+
+  useEffect(() => {
+    if (selectedNode) {
+      setShowMobileDetails(true)
+    }
+  }, [selectedNode])
 
   const isDemoAddress = (addr: string) => {
     const demoAddrs = Object.values(DEMO_ADDRESSES).map(a => a.toLowerCase())
@@ -96,6 +104,7 @@ function GraphContent() {
 
     setIsLoading(true)
     setSelectedNode(null)
+    setShowMobileControls(false)
 
     try {
       const response = await fetch("/api/trace", {
@@ -167,13 +176,18 @@ function GraphContent() {
       return nodeIds.has(sourceId) && nodeIds.has(targetId)
     })
 
+    const isMobile = width < 640
+    const linkDistance = isMobile ? 100 : 150
+    const chargeStrength = isMobile ? -300 : -500
+    const collisionRadius = isMobile ? 35 : 50
+
     const simulation = d3.forceSimulation<GraphNode>(filteredNodes)
       .force("link", d3.forceLink<GraphNode, GraphEdge>(filteredEdges)
         .id(d => d.id)
-        .distance(150))
-      .force("charge", d3.forceManyBody().strength(-500))
+        .distance(linkDistance))
+      .force("charge", d3.forceManyBody().strength(chargeStrength))
       .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("collision", d3.forceCollide().radius(50))
+      .force("collision", d3.forceCollide().radius(collisionRadius))
 
     svg.append("defs").append("marker")
       .attr("id", "arrowhead")
@@ -196,6 +210,9 @@ function GraphContent() {
       .attr("stroke-width", d => Math.min(Math.max(d.value * 2, 1), 5))
       .attr("marker-end", "url(#arrowhead)")
       .style("filter", "drop-shadow(0 0 3px #00d4ff)")
+
+    const nodeRadius = isMobile ? 16 : 20
+    const exchangeRadius = isMobile ? 20 : 25
 
     const node = g.append("g")
       .selectAll<SVGGElement, GraphNode>("g")
@@ -222,7 +239,7 @@ function GraphContent() {
       })
 
     node.append("circle")
-      .attr("r", d => d.isExchange ? 25 : 20)
+      .attr("r", d => d.isExchange ? exchangeRadius : nodeRadius)
       .attr("fill", d => d.isExchange ? "#3b82f6" : getRiskColor(d.riskLevel))
       .attr("stroke", "#fff")
       .attr("stroke-width", 2)
@@ -230,10 +247,10 @@ function GraphContent() {
       .style("filter", d => `drop-shadow(0 0 8px ${d.isExchange ? "#3b82f6" : getRiskColor(d.riskLevel)})`)
 
     node.append("text")
-      .attr("dy", 40)
+      .attr("dy", isMobile ? 30 : 40)
       .attr("text-anchor", "middle")
       .attr("fill", "#fff")
-      .attr("font-size", "10px")
+      .attr("font-size", isMobile ? "8px" : "10px")
       .text(d => d.label)
 
     node.filter(d => d.isExchange)
@@ -241,7 +258,7 @@ function GraphContent() {
       .attr("dy", 5)
       .attr("text-anchor", "middle")
       .attr("fill", "#fff")
-      .attr("font-size", "10px")
+      .attr("font-size", isMobile ? "8px" : "10px")
       .attr("font-weight", "bold")
       .text("CEX")
 
@@ -267,23 +284,93 @@ function GraphContent() {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
+      <MobileHeader />
 
-      <main className="flex-1 overflow-hidden flex flex-col page-gradient">
+      <main className="flex-1 overflow-hidden flex flex-col page-gradient pt-[60px] md:pt-0">
         <header className="sticky top-0 z-10 border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-xl shrink-0">
-          <div className="flex items-center justify-between px-8 py-5">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Transaction Graph Analysis</h1>
-              <p className="text-slate-400 text-sm mt-0.5">Visualize money flow and trace suspicious transactions</p>
+          <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 md:py-5">
+            <div className="min-w-0">
+              <h1 className="text-lg md:text-2xl font-bold text-white truncate">Transaction Graph Analysis</h1>
+              <p className="text-slate-400 text-xs md:text-sm mt-0.5 hidden sm:block">Visualize money flow and trace suspicious transactions</p>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-              <Zap className="h-3 w-3 text-primary animate-pulse" />
-              <span className="text-xs text-primary font-medium">Live Analysis</span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMobileControls(!showMobileControls)}
+                className="md:hidden text-xs text-primary border border-primary/20 rounded-lg"
+              >
+                <Filter className="h-3 w-3 mr-1" />
+                Controls
+              </Button>
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+                <Zap className="h-3 w-3 text-primary animate-pulse" />
+                <span className="text-xs text-primary font-medium">Live Analysis</span>
+              </div>
             </div>
           </div>
         </header>
 
-        <div className="flex-1 flex overflow-hidden">
-          <div className="w-72 border-r border-slate-800/50 bg-slate-950/50 backdrop-blur-sm p-5 space-y-5 overflow-auto shrink-0">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+          {showMobileControls && (
+            <div className="md:hidden border-b border-slate-800/50 bg-slate-950/90 backdrop-blur-sm p-4 space-y-4 overflow-auto max-h-[60vh] shrink-0 z-10">
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label className="text-xs text-slate-400">Wallet Address</Label>
+                  <Input
+                    placeholder="0x..."
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className="font-mono text-xs h-10 bg-slate-900/50 border-slate-700/50 rounded-xl focus:border-primary/50"
+                    onKeyDown={(e) => e.key === "Enter" && handleTrace()}
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 space-y-1">
+                    <Label className="text-xs text-slate-400">Depth: {depth[0]}</Label>
+                    <Slider value={depth} onValueChange={setDepth} min={1} max={3} step={1} className="py-1" />
+                  </div>
+                  <div className="flex items-center gap-2 py-2 px-3 rounded-xl bg-slate-900/30 border border-slate-800/50">
+                    <Label className="text-xs text-slate-400">High Risk</Label>
+                    <Switch checked={showHighRiskOnly} onCheckedChange={setShowHighRiskOnly} />
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={() => handleTrace()} 
+                  disabled={isLoading} 
+                  className="w-full h-10 rounded-xl bg-gradient-to-r from-primary to-cyan-500 text-slate-900 font-semibold"
+                >
+                  {isLoading ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Search className="h-4 w-4 mr-2" />}
+                  {isLoading ? "Tracing..." : "Trace Wallet"}
+                </Button>
+              </div>
+
+              <div className="pt-3 border-t border-slate-800/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <Beaker className="h-3 w-3 text-violet-400" />
+                  <h4 className="text-xs font-semibold text-slate-300">Demo Mode</h4>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  <Button variant="outline" size="sm" onClick={() => { setAddress(DEMO_ADDRESSES.scammer); setDemoMode(true); handleTrace(DEMO_ADDRESSES.scammer) }} disabled={isLoading} className="text-[10px] h-8 border-red-500/30 text-red-400 hover:bg-red-500/10 px-1">
+                    <AlertTriangle className="h-3 w-3 mr-0.5" />Scammer
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setAddress(DEMO_ADDRESSES.victim); setDemoMode(true); handleTrace(DEMO_ADDRESSES.victim) }} disabled={isLoading} className="text-[10px] h-8 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 px-1">
+                    <Wallet className="h-3 w-3 mr-0.5" />Victim
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setAddress(DEMO_ADDRESSES.mule); setDemoMode(true); handleTrace(DEMO_ADDRESSES.mule) }} disabled={isLoading} className="text-[10px] h-8 border-amber-500/30 text-amber-400 hover:bg-amber-500/10 px-1">
+                    <RefreshCw className="h-3 w-3 mr-0.5" />Mule
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setAddress(DEMO_ADDRESSES.exchange); setDemoMode(true); handleTrace(DEMO_ADDRESSES.exchange) }} disabled={isLoading} className="text-[10px] h-8 border-blue-500/30 text-blue-400 hover:bg-blue-500/10 px-1">
+                    <Building2 className="h-3 w-3 mr-0.5" />Exchange
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="hidden md:block w-72 border-r border-slate-800/50 bg-slate-950/50 backdrop-blur-sm p-5 space-y-5 overflow-auto shrink-0">
             <div>
               <h3 className="text-sm font-semibold mb-4 flex items-center gap-2 text-white">
                 <Filter className="h-4 w-4 text-primary" />
@@ -454,25 +541,34 @@ function GraphContent() {
             )}
           </div>
 
-          <div className="flex-1 flex flex-col p-5 gap-4 overflow-hidden">
-            <div ref={containerRef} className="flex-1 relative rounded-2xl border border-slate-800/50 overflow-hidden" style={{background: "radial-gradient(ellipse at center, #0f172a 0%, #020617 100%)"}}>
+          <div className="flex-1 flex flex-col p-3 md:p-5 gap-3 md:gap-4 overflow-hidden">
+            <div ref={containerRef} className="flex-1 relative rounded-xl md:rounded-2xl border border-slate-800/50 overflow-hidden min-h-[200px]" style={{background: "radial-gradient(ellipse at center, #0f172a 0%, #020617 100%)"}}>
               {!traceResult ? (
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center p-4">
                   <div className="text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-slate-800/50 flex items-center justify-center mx-auto mb-4">
-                      <Search className="h-8 w-8 text-slate-600" />
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-slate-800/50 flex items-center justify-center mx-auto mb-4">
+                      <Search className="h-7 w-7 md:h-8 md:w-8 text-slate-600" />
                     </div>
-                    <p className="text-slate-400">Enter a wallet address and click Trace to visualize the transaction graph</p>
+                    <p className="text-slate-400 text-sm md:text-base">Enter a wallet address and click Trace to visualize the transaction graph</p>
                     <p className="text-xs mt-2 text-slate-600">Requires ETHERSCAN_API_KEY in secrets</p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowMobileControls(true)}
+                      className="md:hidden mt-4 text-xs text-primary border border-primary/20"
+                    >
+                      <Filter className="h-3 w-3 mr-1" />
+                      Open Controls
+                    </Button>
                   </div>
                 </div>
               ) : traceResult.nodes.length === 0 ? (
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center p-4">
                   <div className="text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
-                      <AlertTriangle className="h-8 w-8 text-amber-500/50" />
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
+                      <AlertTriangle className="h-7 w-7 md:h-8 md:w-8 text-amber-500/50" />
                     </div>
-                    <p className="text-slate-400">No transactions found for this address</p>
+                    <p className="text-slate-400 text-sm">No transactions found for this address</p>
                     <p className="text-xs mt-2 text-slate-600">The address may be new or have no activity</p>
                   </div>
                 </div>
@@ -482,41 +578,41 @@ function GraphContent() {
             </div>
 
             {traceResult && traceResult.nodes.length > 0 && (
-              <div className="grid grid-cols-4 gap-3 shrink-0">
-                <div className="rounded-xl border border-slate-800/50 bg-slate-900/50 p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                    <Wallet className="h-5 w-5 text-primary" />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 shrink-0">
+                <div className="rounded-xl border border-slate-800/50 bg-slate-900/50 p-3 md:p-4 flex items-center gap-2 md:gap-3">
+                  <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0">
+                    <Wallet className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Wallets</p>
-                    <p className="text-xl font-bold text-white">{traceResult.nodes.length}</p>
-                  </div>
-                </div>
-                <div className="rounded-xl border border-slate-800/50 bg-slate-900/50 p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                    <Building2 className="h-5 w-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Exit Points</p>
-                    <p className="text-xl font-bold text-blue-400">{traceResult.exitPoints.length}</p>
+                  <div className="min-w-0">
+                    <p className="text-[10px] md:text-xs text-slate-500">Wallets</p>
+                    <p className="text-lg md:text-xl font-bold text-white">{traceResult.nodes.length}</p>
                   </div>
                 </div>
-                <div className="rounded-xl border border-slate-800/50 bg-slate-900/50 p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-red-500/10 flex items-center justify-center border border-red-500/20">
-                    <AlertTriangle className="h-5 w-5 text-red-400" />
+                <div className="rounded-xl border border-slate-800/50 bg-slate-900/50 p-3 md:p-4 flex items-center gap-2 md:gap-3">
+                  <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shrink-0">
+                    <Building2 className="h-4 w-4 md:h-5 md:w-5 text-blue-400" />
                   </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Suspicious</p>
-                    <p className="text-xl font-bold text-red-400">{traceResult.suspiciousAddresses.length}</p>
+                  <div className="min-w-0">
+                    <p className="text-[10px] md:text-xs text-slate-500">Exit Points</p>
+                    <p className="text-lg md:text-xl font-bold text-blue-400">{traceResult.exitPoints.length}</p>
                   </div>
                 </div>
-                <div className="rounded-xl border border-slate-800/50 bg-slate-900/50 p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
-                    <RefreshCw className="h-5 w-5 text-violet-400" />
+                <div className="rounded-xl border border-slate-800/50 bg-slate-900/50 p-3 md:p-4 flex items-center gap-2 md:gap-3">
+                  <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-red-500/10 flex items-center justify-center border border-red-500/20 shrink-0">
+                    <AlertTriangle className="h-4 w-4 md:h-5 md:w-5 text-red-400" />
                   </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Volume</p>
-                    <p className="text-xl font-bold text-white">{formatEth(traceResult.totalVolume)} ETH</p>
+                  <div className="min-w-0">
+                    <p className="text-[10px] md:text-xs text-slate-500">Suspicious</p>
+                    <p className="text-lg md:text-xl font-bold text-red-400">{traceResult.suspiciousAddresses.length}</p>
+                  </div>
+                </div>
+                <div className="rounded-xl border border-slate-800/50 bg-slate-900/50 p-3 md:p-4 flex items-center gap-2 md:gap-3">
+                  <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20 shrink-0">
+                    <RefreshCw className="h-4 w-4 md:h-5 md:w-5 text-violet-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] md:text-xs text-slate-500">Volume</p>
+                    <p className="text-lg md:text-xl font-bold text-white truncate">{formatEth(traceResult.totalVolume)} ETH</p>
                   </div>
                 </div>
               </div>
@@ -524,79 +620,119 @@ function GraphContent() {
           </div>
 
           {selectedNode && (
-            <div className="w-72 border-l border-slate-800/50 bg-slate-950/50 backdrop-blur-sm p-5 overflow-auto shrink-0">
-              <h3 className="font-semibold mb-4 text-white">Wallet Details</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs text-slate-500">Address</label>
-                  <p className="font-mono text-xs break-all text-white mt-1">{selectedNode.id}</p>
-                </div>
-                {selectedNode.isExchange && (
-                  <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                    <Building2 className="h-3 w-3 mr-1" />
-                    {selectedNode.exchangeName || "Exchange"}
-                  </Badge>
-                )}
-                <div>
-                  <label className="text-xs text-muted-foreground">Risk Score</label>
-                  <div className="mt-1">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all"
-                          style={{
-                            width: `${selectedNode.riskScore}%`,
-                            backgroundColor: getRiskColor(selectedNode.riskLevel),
-                          }}
-                        />
-                      </div>
-                      <span className="font-bold text-sm">{selectedNode.riskScore}</span>
-                    </div>
-                    <Badge
-                      className="mt-2"
-                      style={{
-                        backgroundColor: `${getRiskColor(selectedNode.riskLevel)}20`,
-                        color: getRiskColor(selectedNode.riskLevel),
-                      }}
-                    >
-                      {selectedNode.riskLevel.toUpperCase()} RISK
+            <>
+              <div className="hidden md:block w-72 border-l border-slate-800/50 bg-slate-950/50 backdrop-blur-sm p-5 overflow-auto shrink-0">
+                <h3 className="font-semibold mb-4 text-white">Wallet Details</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs text-slate-500">Address</label>
+                    <p className="font-mono text-xs break-all text-white mt-1">{selectedNode.id}</p>
+                  </div>
+                  {selectedNode.isExchange && (
+                    <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                      <Building2 className="h-3 w-3 mr-1" />
+                      {selectedNode.exchangeName || "Exchange"}
                     </Badge>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
+                  )}
                   <div>
-                    <label className="text-xs text-muted-foreground">Total In</label>
-                    <p className="font-bold text-sm">{formatEth(selectedNode.totalIn)} ETH</p>
+                    <label className="text-xs text-muted-foreground">Risk Score</label>
+                    <div className="mt-1">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{
+                              width: `${selectedNode.riskScore}%`,
+                              backgroundColor: getRiskColor(selectedNode.riskLevel),
+                            }}
+                          />
+                        </div>
+                        <span className="font-bold text-sm">{selectedNode.riskScore}</span>
+                      </div>
+                      <Badge
+                        className="mt-2"
+                        style={{
+                          backgroundColor: `${getRiskColor(selectedNode.riskLevel)}20`,
+                          color: getRiskColor(selectedNode.riskLevel),
+                        }}
+                      >
+                        {selectedNode.riskLevel.toUpperCase()} RISK
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-muted-foreground">Total In</label>
+                      <p className="font-bold text-sm">{formatEth(selectedNode.totalIn)} ETH</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Total Out</label>
+                      <p className="font-bold text-sm">{formatEth(selectedNode.totalOut)} ETH</p>
+                    </div>
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground">Total Out</label>
-                    <p className="font-bold text-sm">{formatEth(selectedNode.totalOut)} ETH</p>
+                    <label className="text-xs text-muted-foreground">Transactions</label>
+                    <p className="font-bold text-sm">{selectedNode.txCount}</p>
                   </div>
+                  <Button className="w-full" variant="outline" size="sm" onClick={() => router.push(`/risk?address=${selectedNode.id}`)}>
+                    View Full Analysis
+                  </Button>
+                  <Button className="w-full" size="sm" onClick={() => { setAddress(selectedNode.id); handleTrace(selectedNode.id) }}>
+                    Trace This Wallet
+                  </Button>
                 </div>
-                <div>
-                  <label className="text-xs text-muted-foreground">Transactions</label>
-                  <p className="font-bold text-sm">{selectedNode.txCount}</p>
-                </div>
-                <Button
-                  className="w-full"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push(`/risk?address=${selectedNode.id}`)}
-                >
-                  View Full Analysis
-                </Button>
-                <Button
-                  className="w-full"
-                  size="sm"
-                  onClick={() => {
-                    setAddress(selectedNode.id)
-                    handleTrace(selectedNode.id)
-                  }}
-                >
-                  Trace This Wallet
-                </Button>
               </div>
-            </div>
+
+              {showMobileDetails && (
+                <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-950/98 backdrop-blur-xl border-t border-slate-800/50 rounded-t-2xl max-h-[50vh] overflow-auto p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-white text-sm">Wallet Details</h3>
+                    <Button variant="ghost" size="icon" onClick={() => { setShowMobileDetails(false); setSelectedNode(null) }} className="h-8 w-8 text-slate-400">
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs text-slate-500">Address</label>
+                      <p className="font-mono text-[10px] break-all text-white mt-0.5">{selectedNode.id}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {selectedNode.isExchange && (
+                        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[10px]">
+                          <Building2 className="h-2.5 w-2.5 mr-1" />
+                          {selectedNode.exchangeName || "Exchange"}
+                        </Badge>
+                      )}
+                      <Badge style={{ backgroundColor: `${getRiskColor(selectedNode.riskLevel)}20`, color: getRiskColor(selectedNode.riskLevel) }} className="text-[10px]">
+                        {selectedNode.riskLevel.toUpperCase()} RISK - {selectedNode.riskScore}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[10px] text-slate-500">Total In</label>
+                        <p className="font-bold text-xs">{formatEth(selectedNode.totalIn)} ETH</p>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-500">Total Out</label>
+                        <p className="font-bold text-xs">{formatEth(selectedNode.totalOut)} ETH</p>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-500">Txns</label>
+                        <p className="font-bold text-xs">{selectedNode.txCount}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button className="flex-1 h-9 text-xs" variant="outline" size="sm" onClick={() => router.push(`/risk?address=${selectedNode.id}`)}>
+                        Full Analysis
+                      </Button>
+                      <Button className="flex-1 h-9 text-xs" size="sm" onClick={() => { setAddress(selectedNode.id); handleTrace(selectedNode.id); setShowMobileDetails(false) }}>
+                        Trace Wallet
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
