@@ -545,21 +545,47 @@ function GraphContent() {
             <div ref={containerRef} className="flex-1 relative rounded-xl md:rounded-2xl border border-slate-800/50 overflow-hidden min-h-[200px]" style={{background: "radial-gradient(ellipse at center, #0f172a 0%, #020617 100%)"}}>
               {!traceResult ? (
                 <div className="absolute inset-0 flex items-center justify-center p-4">
-                  <div className="text-center">
+                  <div className="text-center w-full max-w-sm">
                     <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-slate-800/50 flex items-center justify-center mx-auto mb-4">
                       <Search className="h-7 w-7 md:h-8 md:w-8 text-slate-600" />
                     </div>
                     <p className="text-slate-400 text-sm md:text-base">Enter a wallet address and click Trace to visualize the transaction graph</p>
-                    <p className="text-xs mt-2 text-slate-600">Requires ETHERSCAN_API_KEY in secrets</p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowMobileControls(true)}
-                      className="md:hidden mt-4 text-xs text-primary border border-primary/20"
-                    >
-                      <Filter className="h-3 w-3 mr-1" />
-                      Open Controls
-                    </Button>
+                    <p className="text-xs mt-2 text-slate-600 hidden md:block">Requires ETHERSCAN_API_KEY in secrets</p>
+
+                    <div className="md:hidden mt-6 space-y-3 px-2">
+                      <Input
+                        placeholder="0x... wallet address"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        className="font-mono text-xs h-10 bg-slate-900/50 border-slate-700/50 rounded-xl focus:border-primary/50 text-center"
+                        onKeyDown={(e) => e.key === "Enter" && handleTrace()}
+                      />
+                      <Button 
+                        onClick={() => handleTrace()} 
+                        disabled={isLoading} 
+                        className="w-full h-10 rounded-xl bg-gradient-to-r from-primary to-cyan-500 text-slate-900 font-semibold"
+                      >
+                        {isLoading ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Search className="h-4 w-4 mr-2" />}
+                        {isLoading ? "Tracing..." : "Trace Wallet"}
+                      </Button>
+                      <div className="pt-2">
+                        <p className="text-[10px] text-slate-500 mb-2">Quick Demo</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button variant="outline" size="sm" onClick={() => { setAddress(DEMO_ADDRESSES.scammer); setDemoMode(true); handleTrace(DEMO_ADDRESSES.scammer) }} disabled={isLoading} className="text-[10px] h-8 border-red-500/30 text-red-400 hover:bg-red-500/10 px-2">
+                            <AlertTriangle className="h-3 w-3 mr-1" />Scammer
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => { setAddress(DEMO_ADDRESSES.victim); setDemoMode(true); handleTrace(DEMO_ADDRESSES.victim) }} disabled={isLoading} className="text-[10px] h-8 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 px-2">
+                            <Wallet className="h-3 w-3 mr-1" />Victim
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => { setAddress(DEMO_ADDRESSES.mule); setDemoMode(true); handleTrace(DEMO_ADDRESSES.mule) }} disabled={isLoading} className="text-[10px] h-8 border-amber-500/30 text-amber-400 hover:bg-amber-500/10 px-2">
+                            <RefreshCw className="h-3 w-3 mr-1" />Mule
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => { setAddress(DEMO_ADDRESSES.exchange); setDemoMode(true); handleTrace(DEMO_ADDRESSES.exchange) }} disabled={isLoading} className="text-[10px] h-8 border-blue-500/30 text-blue-400 hover:bg-blue-500/10 px-2">
+                            <Building2 className="h-3 w-3 mr-1" />Exchange
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : traceResult.nodes.length === 0 ? (

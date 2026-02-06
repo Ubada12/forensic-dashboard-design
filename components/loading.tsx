@@ -59,7 +59,7 @@ export function Loading({ size = "md", text, fullScreen = false, className }: Lo
 export function PageLoading({ text = "Loading..." }: { text?: string }) {
   return (
     <div className="flex h-screen bg-background">
-      <div className="w-64 border-r border-border bg-card/30" />
+      <div className="hidden md:block w-64 border-r border-border bg-card/30" />
       <div className="flex-1 flex items-center justify-center">
         <Loading size="lg" text={text} />
       </div>
