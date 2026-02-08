@@ -103,7 +103,12 @@ export default function EvidenceReports() {
   }
 
   const handleDownloadReport = () => {
-    console.log(`Downloading ${reportFormat.toUpperCase()} report for case ${selectedCase}`)
+    const link = document.createElement('a')
+    link.href = '/reports/CryptoTraceChain_Forensic_Report.pdf'
+    link.download = `CryptoTraceChain_Case_${selectedCase}_Report.pdf`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   return (
